@@ -19,8 +19,9 @@ jobs:
         token: ${{ secrets.GH_PAT_SECONDARY }}  # <-- ONLY IF NEEDED FOR EXTERNAL REPOS
 
     - name: Setup MSVC (if not using default windows-latest)
-      # Usually unnecessary on windows-latest, but include if using older runners
       uses: ilammy/msvc-dev-cmd@v1
+      # Usually unnecessary on windows-latest, but include if using older runners
+      # Specify VS version if needed (e.g., vs2022) with: vars: vs2022
 
     - name: Restore NuGet packages (if applicable)
       run: |
