@@ -21,9 +21,6 @@ jobs:
     - name: Setup MSVC (if not using default windows-latest)
       # Usually unnecessary on windows-latest, but include if using older runners
       uses: ilammy/msvc-dev-cmd@v1
-      with:
-        # Specify VS version if needed (e.g., vs2022)
-        # vars: vs2022
 
     - name: Restore NuGet packages (if applicable)
       run: |
