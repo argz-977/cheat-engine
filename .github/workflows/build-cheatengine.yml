@@ -1,0 +1,56 @@
+name: Build Cheat Engine
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allows manual triggers
+
+jobs:
+  build:
+    runs-on: windows-latest  # Uses GitHub's hosted Windows runners (has MSVC preinstalled)
+    
+    steps:
+    - name: Checkout repository (with submodules if needed)
+      uses: actions/checkout@v4
+      with:
+        submodules: true  # <-- SET TO TRUE IF USING SUBMODULES FOR SECONDARY PROJECTS
+        # If secondary projects are simple folders in your repo, omit this line
+
+    - name: Setup MSVC (if not using default windows-latest)
+      # Usually unnecessary on windows-latest, but include if using older runners
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        # Specify VS version if needed (e.g., vs2022)
+        # vars: vs2022
+
+    - name: Restore NuGet packages (if applicable)
+      run: |
+        # Cheat Engine may use NuGet for some deps
+        nuget restore CheatEngine.sln
+
+    - name: Build Solution
+      run: |
+        msbuild CheatEngine.sln `
+          /p:Configuration=Release `
+          /p:Platform=x64 `
+          /p:PlatformToolset=v143 `
+          /maxcpucount
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: CheatEngine-Build
+        path: |
+          bin/Release/**  # Adjust if your output differs
+          !bin/Release/*.pdb  # Optional: exclude debug symbols to save space
+        retention-days: 30  # Keep builds for 30 days
+
+    - name: Create Release (Optional)
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/main')
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: build-${{ github.sha }}
+        files: bin/Release/CheatEngine.exe  # Adjust to your main executable
+        generate_release_notes: true
