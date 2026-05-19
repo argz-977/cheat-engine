@@ -10,13 +10,13 @@ on:
 jobs:
   build:
     runs-on: windows-latest  # Uses GitHub's hosted Windows runners (has MSVC preinstalled)
-    
+
     steps:
-    - name: Checkout repository (with submodules if needed)
+    - name: Checkout with secondary repo access
       uses: actions/checkout@v4
       with:
-        submodules: true  # <-- SET TO TRUE IF USING SUBMODULES FOR SECONDARY PROJECTS
-        # If secondary projects are simple folders in your repo, omit this line
+        submodules: true
+        token: ${{ secrets.GH_PAT_SECONDARY }}  # <-- ONLY IF NEEDED FOR EXTERNAL REPOS
 
     - name: Setup MSVC (if not using default windows-latest)
       # Usually unnecessary on windows-latest, but include if using older runners
